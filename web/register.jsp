@@ -20,7 +20,7 @@
             var password = document.getElementById("password");
             var md5_password = document.getElementById("md5_password");
             md5_password.value = hex_md5(password.value);
-            $("#pwd").attr('disabled', 'true');
+            $("#password").attr('disabled', 'true');
         }
     </script>
 </head>
@@ -37,7 +37,8 @@
                 <div class="card fat">
                     <div class="card-body">
                         <h4 class="card-title">Register</h4>
-                        <form method="POST" action="register">
+                        <form method="POST" action="register.do">
+                            <a style="color:red"><%= request.getAttribute("message") == null ? "": request.getAttribute("message")%></a>
 
                             <div class="form-group">
                                 <label for="name">Name</label>

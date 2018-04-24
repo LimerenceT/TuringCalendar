@@ -24,7 +24,6 @@ public class DateServlet extends HttpServlet {
         writer.println("week:" + now.get(Calendar.WEEK_OF_YEAR));
         String week = (now.get(Calendar.WEEK_OF_YEAR) + 7) + "";
         request.setAttribute("week", week);
-//        response.sendRedirect("../../calendar.jsp?week=" + week);
         request.getRequestDispatcher("WEB-INF/jsp/calendar.jsp").forward(request, response);
     }
 }

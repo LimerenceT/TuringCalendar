@@ -32,4 +32,13 @@ public class User {
     public List<String> getLiked() {
         return liked;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", liked=" + liked +
+                '}';
+    }
 }
