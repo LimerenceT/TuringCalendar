@@ -21,6 +21,10 @@ import java.util.List;
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String servletPath = request.getServletPath();
         String methodName = servletPath.substring(1);
         methodName = methodName.substring(0, methodName.length() - 3);
@@ -34,10 +38,6 @@ public class UserServlet extends HttpServlet {
         }
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
     private void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("name");
         String get_password = request.getParameter("md5_password");
@@ -47,19 +47,16 @@ public class UserServlet extends HttpServlet {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
             UserDao dao = new UserDaoJdbcImpl();
             User user = dao.getByName(username);
-            if (user != null){
-//                request.setAttribute("success_info", false);
+            if (user != null) {
                 request.setAttribute("message", "这个名字被注册过了");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
-            }
-            else {
+            } else {
                 User newUser = new User();
                 newUser.setUsername(username);
                 newUser.setPassword(password);
                 dao.add(newUser);
-//                request.setAttribute("success_info", true);
-//                request.setAttribute("message", "注册成功，正在跳转");
-//                request.getRequestDispatcher("send.jsp").forward(request, response);
+                HttpSession session = request.getSession(true);
+                session.setAttribute("user", newUser);
                 response.sendRedirect("send.jsp");
             }
 
@@ -80,20 +77,27 @@ public class UserServlet extends HttpServlet {
             UserDaoJdbcImpl dao = new UserDaoJdbcImpl();
             User user = dao.getByName(username);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                request.setAttribute("success_info", true);
                 request.setAttribute("message", "登录成功");
-                HttpSession session = request.getSession();
-                session.setAttribute("username", username);
+                HttpSession session = request.getSession(true);
+                session.setAttribute("user", user);
+
                 response.sendRedirect("/TuringCalendar");
 
-            }
-            else {
-                request.setAttribute("success_info", false);
+            } else {
                 request.setAttribute("message", "密码或用户名错误！");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
         } catch (NoSuchAlgorithmException | SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute("user");
+        }
+        response.sendRedirect("/TuringCalendar");
+
     }
 }
