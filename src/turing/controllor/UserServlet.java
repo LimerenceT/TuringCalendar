@@ -46,17 +46,17 @@ public class UserServlet extends HttpServlet {
         try {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
             UserDao dao = new UserDaoJdbcImpl();
-            User user1 = dao.getByName(username);
-            if (user1 != null){
+            User user = dao.getByName(username);
+            if (user != null){
 //                request.setAttribute("success_info", false);
                 request.setAttribute("message", "这个名字被注册过了");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
             }
             else {
-                User user = new User();
-                user.setUsername(username);
-                user.setPassword(password);
-                dao.add(user);
+                User newUser = new User();
+                newUser.setUsername(username);
+                newUser.setPassword(password);
+                dao.add(newUser);
 //                request.setAttribute("success_info", true);
 //                request.setAttribute("message", "注册成功，正在跳转");
 //                request.getRequestDispatcher("send.jsp").forward(request, response);
@@ -79,12 +79,12 @@ public class UserServlet extends HttpServlet {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
             UserDaoJdbcImpl dao = new UserDaoJdbcImpl();
             User user = dao.getByName(username);
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 request.setAttribute("success_info", true);
                 request.setAttribute("message", "登录成功");
                 HttpSession session = request.getSession();
                 session.setAttribute("username", username);
-
+                response.sendRedirect("/TuringCalendar");
 
             }
             else {
@@ -92,7 +92,6 @@ public class UserServlet extends HttpServlet {
                 request.setAttribute("message", "密码或用户名错误！");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
-            request.getRequestDispatcher("/TuringCalendar").forward(request, response);
         } catch (NoSuchAlgorithmException | SQLException e) {
             e.printStackTrace();
         }

@@ -28,7 +28,7 @@ class UserDaoJdbcImplTest {
 
     @Test
     void getByName() throws SQLException {
-        User user = userDao.getByName("sb");
+        User user = userDao.getByName("s");
 
         System.out.println(user);
     }
