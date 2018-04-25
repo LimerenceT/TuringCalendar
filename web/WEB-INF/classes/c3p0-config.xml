@@ -6,7 +6,7 @@
     <named-config name="TuringCalendar">
 
         <property name="driverClass">org.sqlite.JDBC</property>
-        <property name="jdbcUrl">jdbc:sqlite::resource:db/test.db</property>
+        <property name="jdbcUrl">jdbc:sqlite::resource:../db/test.db</property>
         <property name="acquireIncrement">5</property>
         <property name="initialPoolSize">10</property>
         <property name="minPoolSize">10</property>

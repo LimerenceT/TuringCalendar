@@ -16,11 +16,12 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.List;
 
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //解决接受中文用户名显示乱码
+        request.setCharacterEncoding("utf-8");
         doGet(request, response);
     }
 

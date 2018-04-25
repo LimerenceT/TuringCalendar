@@ -43,7 +43,7 @@
 
     <div>
 
-        <img src="/static/TuringCalendar/TuringCalendar-<%=week%>.jpg" width="50%" >
+        <img src="/static/TuringCalendar/TuringCalendar-<%=week%>.jpg" width="60%" >
 
     </div>
 </div>

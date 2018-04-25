@@ -17,7 +17,7 @@ class UserDaoJdbcImplTest {
     @Test
     void add() {
         User user = new User();
-        user.setUsername("ql");
+        user.setUsername("test");
         user.setPassword("123");
         try {
             userDao.add(user);
