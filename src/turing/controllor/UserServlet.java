@@ -2,14 +2,11 @@ package turing.controllor;
 
 import turing.Model.User;
 import turing.dao.UserDao;
-import turing.dao.impl.UserDaoJdbcImpl;
+import turing.dao.factory.UserDAOFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,6 +16,7 @@ import java.sql.SQLException;
 
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
+    private UserDao userDao = UserDAOFactory.getInstance().getUserDao();
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //解决接受中文用户名显示乱码
         request.setCharacterEncoding("utf-8");
@@ -29,7 +27,6 @@ public class UserServlet extends HttpServlet {
         String servletPath = request.getServletPath();
         String methodName = servletPath.substring(1);
         methodName = methodName.substring(0, methodName.length() - 3);
-        System.out.println(methodName);
 
         try {
             Method method = getClass().getDeclaredMethod(methodName, HttpServletRequest.class, HttpServletResponse.class);
@@ -46,8 +43,7 @@ public class UserServlet extends HttpServlet {
         // sha-1 加密
         try {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
-            UserDao dao = new UserDaoJdbcImpl();
-            User user = dao.getByName(username);
+            User user = userDao.getByName(username);
             if (user != null) {
                 request.setAttribute("message", "这个名字被注册过了");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
@@ -55,7 +51,8 @@ public class UserServlet extends HttpServlet {
                 User newUser = new User();
                 newUser.setUsername(username);
                 newUser.setPassword(password);
-                dao.add(newUser);
+                userDao.add(newUser);
+
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", newUser);
                 response.sendRedirect("send.jsp");
@@ -75,12 +72,16 @@ public class UserServlet extends HttpServlet {
         // sha-1 加密
         try {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
-            UserDaoJdbcImpl dao = new UserDaoJdbcImpl();
-            User user = dao.getByName(username);
+            User user = userDao.getByName(username);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 request.setAttribute("message", "登录成功");
-                HttpSession session = request.getSession(true);
+                HttpSession session = request.getSession();
                 session.setAttribute("user", user);
+
+                Cookie cookie = new Cookie("JSESSIONID",session.getId());
+                cookie.setMaxAge(2*7*24*3600);
+                cookie.setPath("/");
+                response.addCookie(cookie);
 
                 response.sendRedirect("/TuringCalendar");
 
@@ -97,6 +98,16 @@ public class UserServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.removeAttribute("user");
+        }
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("JSESSIONID")) {
+                cookie.setValue(null);
+                cookie.setMaxAge(0);// 立即销毁cookie
+                cookie.setPath("/");
+                response.addCookie(cookie);
+                break;
+            }
         }
         response.sendRedirect("/TuringCalendar");
 

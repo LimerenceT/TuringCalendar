@@ -1,4 +1,4 @@
-<%@ page import="turing.Model.User" %><%--
+<%--
   Created by IntelliJ IDEA.
   User: ql
   Date: 2018/4/2
@@ -10,42 +10,43 @@
 <head>
     <title>calendar</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 
 <%
     String week = (String) request.getAttribute("week");
-    HttpSession httpSession = request.getSession();
-    User user  = (User)httpSession.getAttribute("user");
-    String info;
-    String url;
-    String login_info;
-    if (user != null) {
-        info = "欢迎回来," + user.getUsername();
-        url = "logout.do";
-        login_info = "退出登录";
-    }
-    else {
-        info = "未登录";
-        url = "login.jsp";
-        login_info = "登录";
-    }
+    System.out.println(week);
+    String info = (String) request.getAttribute("info");
+    String url = (String) request.getAttribute("url");
+    String login_info = (String) request.getAttribute("login_info");
 
 %>
 
 <div class="jumbotron text-center">
+    <% int lastWeek = Integer.parseInt(week) -1;
+        if (lastWeek > 0) {%>
+    <a href="/TuringCalendar?last=<%=lastWeek%>">last</a>
+    <%
+        }
+    %>
+
+    <a href="/TuringCalendar">now</a>
+    <% int nextWeek = Integer.parseInt(week) + 1;
+        if (nextWeek < 62) {%>
+    <a href="/TuringCalendar?next=<%=nextWeek%>">next</a>
+    <%
+        }
+    %>
+
+
 
     <p style="text-align: right"><a><%=info%></a></p>
     <p style="text-align: right"><a href=<%=url%>><%=login_info%></a></p>
 
     <div>
-
-        <img src="/static/TuringCalendar/TuringCalendar-<%=week%>.jpg" width="60%" >
-
+        <div><img src="/static/TuringCalendar/TuringCalendar-<%=week%>.jpg" width="60%" ></div>
     </div>
+
 </div>
 </body>
 </html>
