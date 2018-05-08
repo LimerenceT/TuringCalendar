@@ -8,6 +8,8 @@ public class User {
     private String username;
     private String password;
     private List<String> liked = new ArrayList<String>();
+    private List<String> disliked = new ArrayList<String>();
+
 
     public String getUsername() {
         return username;
@@ -25,12 +27,21 @@ public class User {
         this.password = password;
     }
 
-    public void setLiked(String picNum) {
-        this.liked.add(picNum);
+    public void setLiked(List<String> picNum) {
+        this.liked = picNum;
     }
 
     public List<String> getLiked() {
         return liked;
+    }
+
+
+    public List<String> getDisliked() {
+        return disliked;
+    }
+
+    public void setDisliked(List<String> disliked) {
+        this.disliked = disliked;
     }
 
     @Override

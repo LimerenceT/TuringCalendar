@@ -14,7 +14,9 @@
 
         <!-- intergalactoApp adopts a different approach to configuring statement caching -->
         <property name="maxStatements">20</property>
+        <property name="setStatementCacheNumDeferredCloseThreads">1</property>
         <property name="maxStatementsPerConnection">5</property>
+
 
 
     </named-config>

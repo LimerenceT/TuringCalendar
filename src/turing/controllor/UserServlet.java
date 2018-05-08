@@ -1,7 +1,10 @@
 package turing.controllor;
 
+import turing.Model.MyCalendar;
 import turing.Model.User;
+import turing.dao.CalendarDao;
 import turing.dao.UserDao;
+import turing.dao.factory.CalendarDAOFactory;
 import turing.dao.factory.UserDAOFactory;
 
 import javax.servlet.ServletException;
@@ -13,10 +16,13 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
     private UserDao userDao = UserDAOFactory.getInstance().getUserDao();
+    private CalendarDao calendarDao = CalendarDAOFactory.getInstance().getCalendarDao();
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //解决接受中文用户名显示乱码
         request.setCharacterEncoding("utf-8");
@@ -82,8 +88,9 @@ public class UserServlet extends HttpServlet {
                 cookie.setMaxAge(2*7*24*3600);
                 cookie.setPath("/");
                 response.addCookie(cookie);
+                //response.sendRedirect("/TuringCalendar");
+                now(request, response);
 
-                response.sendRedirect("/TuringCalendar");
 
             } else {
                 request.setAttribute("message", "密码或用户名错误！");
@@ -109,7 +116,95 @@ public class UserServlet extends HttpServlet {
                 break;
             }
         }
-        response.sendRedirect("/TuringCalendar");
+        now(request, response);
 
+    }
+
+    private void next(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String week = request.getParameter("week");
+
+        if (week != null) {
+            request.setAttribute("week", String.format("%02d", Integer.parseInt(week)+1));
+        }
+        setSession(request, response);
+    }
+
+    private void last(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String week = request.getParameter("week");
+
+        if (week != null) {
+            request.setAttribute("week", String.format("%02d", Integer.parseInt(week)-1));
+        }
+        setSession(request, response);
+    }
+
+    private void now(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Calendar now = Calendar.getInstance();
+        now.setFirstDayOfWeek(Calendar.MONDAY);
+        String week = (now.get(Calendar.WEEK_OF_YEAR) + 7) + "";
+        request.setAttribute("week", week);
+        setSession(request, response);
+    }
+
+    private void setSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        MyCalendar myCalendar = null;
+        String week = (String) request.getAttribute("week");
+        try {
+            myCalendar = calendarDao.getByWeek(week);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        request.setAttribute("up", myCalendar.getUp());
+        request.setAttribute("down", myCalendar.getDown());
+        HttpSession httpSession = request.getSession();
+        User user  = (User)httpSession.getAttribute("user");
+        String info;
+        String url;
+        String login_info;
+        if (user != null) {
+            info = "欢迎回来," + user.getUsername();
+            url = "logout.do";
+            login_info = "退出登录";
+        }
+        else {
+            info = "未登录";
+            url = "login.jsp";
+            login_info = "登录";
+        }
+        request.setAttribute("info", info);
+        request.setAttribute("url", url);
+        request.setAttribute("login_info", login_info);
+        request.getRequestDispatcher("/WEB-INF/jsp/calendar.jsp").forward(request, response);
+
+        // 用于发现jsp页面上的报错
+//        try {
+//            request.getRequestDispatcher("/WEB-INF/jsp/calendar.jsp").forward(request, response);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    private void up(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String week = request.getParameter("week");
+        try {
+            calendarDao.addUp(week);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        request.setAttribute("week", week);
+        setSession(request, response);
+
+    }
+    private void down(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String week = request.getParameter("week");
+
+        try {
+            calendarDao.addDown(week);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        request.setAttribute("week", week);
+        setSession(request, response);
     }
 }

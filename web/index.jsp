@@ -16,7 +16,7 @@
 
       <div class="jumbotron text-center">
         <h1>Turing Calendar</h1>
-            <p><a href="/TuringCalendar">more>></a></p>
+            <p><a href="now.do">more>></a></p>
             <%--<p><a href="/register.jsp">注册</a></p>--%>
             <%--<p><a href="/login.jsp">登录</a></p>--%>
       </div>

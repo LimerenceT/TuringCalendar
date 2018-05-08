@@ -14,7 +14,7 @@
     <%--String info = (String) request.getAttribute("message");--%>
 
 <%--%>--%>
-<meta http-equiv='refresh' content='5;url=/TuringCalendar'>
+<meta http-equiv='refresh' content='5;url=now.do'>
 <script type='text/javascript'>
     var i=5;
     function getTime(){

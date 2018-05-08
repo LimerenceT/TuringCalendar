@@ -1,14 +1,11 @@
 package turing.controllor;
 
-import turing.Model.User;
+import turing.dao.factory.CalendarDAOFactory;
 import turing.dao.factory.UserDAOFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -18,7 +15,6 @@ public class InitServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        UserDAOFactory.getInstance().setType("jdbc");
         InputStream in = this.getServletContext().getResourceAsStream("/WEB-INF/classes/switch.properties");
         Properties properties = new Properties();
 
@@ -26,6 +22,7 @@ public class InitServlet extends HttpServlet {
             properties.load(in);
             String type = properties.getProperty("type");
             UserDAOFactory.getInstance().setType(type);
+            CalendarDAOFactory.getInstance().setType(type);
         } catch (Exception var4) {
             var4.printStackTrace();
         }
