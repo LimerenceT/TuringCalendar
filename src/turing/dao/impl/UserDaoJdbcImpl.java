@@ -6,6 +6,7 @@ import turing.dao.UserDao;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJdbcImpl extends DAO<User> implements UserDao {
@@ -19,8 +20,8 @@ public class UserDaoJdbcImpl extends DAO<User> implements UserDao {
 
     @Override
     public void updated(User user) throws SQLException {
-        String sql = "update user set password = ?, liked = ?, disliked = ?";
-        update(sql, user.getPassword(), user.getLiked(), user.getDisliked());
+        String sql = "update user set password = ?, liked = ?, disliked = ? where username = ?";
+        update(sql, user.getPassword(), user.getLiked(), user.getDisliked(), user.getUsername());
     }
 
     @Override
@@ -36,25 +37,28 @@ public class UserDaoJdbcImpl extends DAO<User> implements UserDao {
     }
 
     @Override
-    public boolean state(User user, String week) throws SQLException {
-        return user.getLiked().contains(week) || user.getDisliked().contains(week);
+    public List<Boolean> state(User user, String week) throws SQLException {
+        List<Boolean> states = new ArrayList<>();
+        states.add(user.getLiked().contains(week));
+        states.add( user.getDisliked().contains(week));
+        return states;
     }
 
     @Override
     public void up(User user) throws SQLException {
         User newUser = getByName(user.getUsername());
-        List<String> list = newUser.getLiked();
-        list.addAll(user.getLiked());
-        newUser.setLiked(list);
+        String liked = newUser.getLiked();
+        liked += user.getLiked()+",";
+        newUser.setLiked(liked);
         updated(newUser);
     }
 
     @Override
     public void down(User user) throws SQLException {
         User newUser = getByName(user.getUsername());
-        List<String> list = newUser.getDisliked();
-        list.addAll(user.getDisliked());
-        newUser.setDisliked(list);
+        String disliked = newUser.getDisliked();
+        disliked += user.getDisliked()+",";
+        newUser.setDisliked(disliked);
         updated(newUser);
     }
 

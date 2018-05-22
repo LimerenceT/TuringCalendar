@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
@@ -79,7 +80,7 @@ public class UserServlet extends HttpServlet {
         try {
             String password = new String(MessageDigest.getInstance("SHA-1").digest(get_password.getBytes()));
             User user = userDao.getByName(username);
-            if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            if (user != null && user.getPassword().equals(password)) {
                 request.setAttribute("message", "登录成功");
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
@@ -120,23 +121,15 @@ public class UserServlet extends HttpServlet {
 
     }
 
-    private void next(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void nextOrlast(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String week = request.getParameter("week");
 
         if (week != null) {
-            request.setAttribute("week", String.format("%02d", Integer.parseInt(week)+1));
+            request.setAttribute("week", String.format("%02d", Integer.parseInt(week)));
         }
         setSession(request, response);
     }
 
-    private void last(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String week = request.getParameter("week");
-
-        if (week != null) {
-            request.setAttribute("week", String.format("%02d", Integer.parseInt(week)-1));
-        }
-        setSession(request, response);
-    }
 
     private void now(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Calendar now = Calendar.getInstance();
@@ -161,16 +154,28 @@ public class UserServlet extends HttpServlet {
         String info;
         String url;
         String login_info;
+        boolean upState = false;
+        boolean downState = false;
+        List<Boolean> states = null;
         if (user != null) {
             info = "欢迎回来," + user.getUsername();
             url = "logout.do";
             login_info = "退出登录";
+            try {
+                states = userDao.state(userDao.getByName(user.getUsername()), week);
+                upState = states.get(0);
+                downState = states.get(1);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         else {
             info = "未登录";
             url = "login.jsp";
             login_info = "登录";
         }
+        request.setAttribute("upState", upState);
+        request.setAttribute("downState", downState);
         request.setAttribute("info", info);
         request.setAttribute("url", url);
         request.setAttribute("login_info", login_info);
@@ -185,26 +190,56 @@ public class UserServlet extends HttpServlet {
 //        }
     }
 
-    private void up(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void up(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         String week = request.getParameter("week");
-        try {
-            calendarDao.addUp(week);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String username = request.getParameter("name");
+        List<Boolean> states = userDao.state(userDao.getByName(username), week);
+        if (!(states.get(0) || states.get(1))) {
+            try {
+                calendarDao.addUp(week);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                User user = userDao.getByName(username);
+                if (user != null) {
+                    user.setLiked(week);
+                    userDao.up(user);
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         }
         request.setAttribute("week", week);
         setSession(request, response);
+
+
 
     }
-    private void down(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void down(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
         String week = request.getParameter("week");
+        String username = request.getParameter("name");
+        List<Boolean> states = userDao.state(userDao.getByName(username), week);
+        if (!(states.get(0) || states.get(1))) {
+            try {
+                calendarDao.addDown(week);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                User user = userDao.getByName(username);
+                user.setDisliked(week);
+                userDao.down(user);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
-        try {
-            calendarDao.addDown(week);
-        } catch (SQLException e) {
-            e.printStackTrace();
+
         }
         request.setAttribute("week", week);
         setSession(request, response);
+
     }
 }

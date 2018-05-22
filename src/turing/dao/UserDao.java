@@ -19,7 +19,7 @@ public interface UserDao {
     public List<User> getAll() throws SQLException;
 
     //点赞状态
-    public boolean state(User user, String week) throws SQLException ;
+    public List<Boolean> state(User user, String week) throws SQLException ;
 
     //点赞
     public void up(User user) throws SQLException;

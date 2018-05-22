@@ -7,8 +7,11 @@ public class User {
 
     private String username;
     private String password;
-    private List<String> liked = new ArrayList<String>();
-    private List<String> disliked = new ArrayList<String>();
+    private String liked;
+    private String disliked;
+
+    public User() {
+    }
 
 
     public String getUsername() {
@@ -27,29 +30,20 @@ public class User {
         this.password = password;
     }
 
-    public void setLiked(List<String> picNum) {
-        this.liked = picNum;
-    }
 
-    public List<String> getLiked() {
+    public String getLiked() {
         return liked;
     }
 
+    public void setLiked(String liked) {
+        this.liked = liked;
+    }
 
-    public List<String> getDisliked() {
+    public String getDisliked() {
         return disliked;
     }
 
-    public void setDisliked(List<String> disliked) {
+    public void setDisliked(String disliked) {
         this.disliked = disliked;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", liked=" + liked +
-                '}';
     }
 }
