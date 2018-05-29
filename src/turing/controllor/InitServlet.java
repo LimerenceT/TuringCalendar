@@ -1,6 +1,7 @@
 package turing.controllor;
 
 import turing.dao.factory.CalendarDAOFactory;
+import turing.dao.factory.CommentDaoFactory;
 import turing.dao.factory.UserDAOFactory;
 
 import javax.servlet.ServletException;
@@ -23,6 +24,7 @@ public class InitServlet extends HttpServlet {
             String type = properties.getProperty("type");
             UserDAOFactory.getInstance().setType(type);
             CalendarDAOFactory.getInstance().setType(type);
+            CommentDaoFactory.getInstance().setType(type);
         } catch (Exception var4) {
             var4.printStackTrace();
         }

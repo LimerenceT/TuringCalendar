@@ -1,10 +1,13 @@
 package turing.controllor;
 
+import turing.Model.Comment;
 import turing.Model.MyCalendar;
 import turing.Model.User;
 import turing.dao.CalendarDao;
+import turing.dao.CommentDao;
 import turing.dao.UserDao;
 import turing.dao.factory.CalendarDAOFactory;
+import turing.dao.factory.CommentDaoFactory;
 import turing.dao.factory.UserDAOFactory;
 
 import javax.servlet.ServletException;
@@ -19,10 +22,12 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 
+
 @WebServlet(urlPatterns = "*.do")
 public class UserServlet extends HttpServlet {
     private UserDao userDao = UserDAOFactory.getInstance().getUserDao();
     private CalendarDao calendarDao = CalendarDAOFactory.getInstance().getCalendarDao();
+    private CommentDao commentDao = CommentDaoFactory.getInstance().getCommentDao();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //解决接受中文用户名显示乱码
@@ -174,6 +179,8 @@ public class UserServlet extends HttpServlet {
             url = "login.jsp";
             login_info = "登录";
         }
+        List<Comment> comments = commentDao.queryByWeek(Integer.parseInt(week));
+        request.setAttribute("comments", comments);
         request.setAttribute("upState", upState);
         request.setAttribute("downState", downState);
         request.setAttribute("info", info);
@@ -240,6 +247,23 @@ public class UserServlet extends HttpServlet {
         }
         request.setAttribute("week", week);
         setSession(request, response);
+
+    }
+    private void comment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+
+        String username = (String) request.getParameter("username");
+        String content = (String) request.getParameter("content");
+        String time = (String) request.getParameter("time");
+        String week = (String) request.getParameter("week");
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setCreate_time(time);
+        comment.setUsername(username);
+        comment.setWeek(Integer.parseInt(week));
+        commentDao.save(comment);
+
+
+
 
     }
 }
