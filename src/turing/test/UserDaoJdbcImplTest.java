@@ -1,5 +1,8 @@
 package turing.test;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import turing.Model.User;
 import turing.dao.UserDao;
@@ -8,39 +11,35 @@ import turing.dao.impl.UserDaoJdbcImpl;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserDaoJdbcImplTest {
+    private static UserDao userDao;
+    private static User user;
+    @BeforeAll
+    static void setUp() {
+        userDao = new UserDaoJdbcImpl();
 
-    private UserDao userDao = new UserDaoJdbcImpl();
-
-    @Test
-    void add() {
-        User user = new User();
+        user = new User();
         user.setUsername("test");
         user.setPassword("123");
-        try {
-            userDao.add(user);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    }
+
+
+    @Test
+    void add() throws SQLException {
+        userDao.add(user);
     }
 
     @Test
     void getByName() throws SQLException {
-        User user = userDao.getByName("s");
-
-        System.out.println(user);
+        User user = userDao.getByName("test");
+        assert user.getUsername().equals("test");
     }
 
     @Test
-    void getAll() {
-        try {
-            List<User> users= userDao.getAll();
-            System.out.println(users);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    void getAll() throws SQLException {
+        List<User> users= userDao.getAll();
+        assert !users.isEmpty();
 
     }
 }

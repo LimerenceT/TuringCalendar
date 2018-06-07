@@ -1,6 +1,6 @@
-<%@ page import="turing.Model.User" %>
 <%@ page import="java.util.List" %>
-<%@ page import="turing.Model.Comment" %><%--
+<%@ page import="turing.Model.Comment" %>
+<%@ page import="turing.Model.User" %><%--
   Created by IntelliJ IDEA.
   User: ql
   Date: 2018/4/2
@@ -12,62 +12,57 @@
 <head>
     <title>MyCalendar</title>
     <link rel="stylesheet" type="text/css" href="../static/css/dropdown.css">
-    <%--<link rel="stylesheet" type="text/css" href="../static/css/side-comments.css">--%>
-    <%--<script src="../static/js/side-comments.js"></script>--%>
-
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/social.css"/>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
+    <script type="text/javascript" src="../static/js/calendar.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
 </head>
 <body>
 
 <%
     String week = (String) request.getAttribute("week");
-    String info = (String) request.getAttribute("info");
-    String url = (String) request.getAttribute("url");
-    String login_info = (String) request.getAttribute("login_info");
-    String up = (String) request.getAttribute("up");
-    String down = (String) request.getAttribute("down");
+//    boolean isLogin = (boolean) session.getAttribute("isLogin");
+    User user = (User) session.getAttribute("user");
+    String info;
+    String url;
+    String login_info;
+    String userName = null;
+    if (user != null) {
+        userName = user.getUsername();
+        info = "欢迎回来," + user.getUsername();
+        url = "logout.do";
+        login_info = "退出登录";
+
+    }
+    else {
+        info = "未登录";
+        url = "login.jsp";
+        login_info = "登录";
+
+    }
+
+    int up = Integer.parseInt((String) request.getAttribute("up"));
+    int down = Integer.parseInt((String) request.getAttribute("down"));
     boolean upState = (boolean) request.getAttribute("upState");
     boolean downState = (boolean) request.getAttribute("downState");
     List<Comment> comments = (List<Comment>) request.getAttribute("comments");
 %>
-<script>
-    function isLogin(upOrDown) {
-        if ("<%=login_info%>"==="登录"){
-            alert("请先登录")
-        }
-        else if (<%=upState%>){
-            alert("你已经点过赞，暂时不能改变")
-        }
-        else if (<%=downState%>){
-            alert("你已经踩过了，暂时不能改变")
-        }
-        else {
-            <%
-                String name = null;
-                if (info.length()>5) {
-                     name = info.substring(5);
-                }
-            %>
-            return window.location.href=upOrDown+".do?week=<%=week%>&name=<%=name%>"
-        }
-    }
-</script>
+
 <div >
     <%
         if (upState) {
     %>
-    <button type="button" class="btn btn-default btn-lg" onclick="isLogin('up')">
-        <span class="fas fa-thumbs-up" aria-hidden="true" ></span>(<%=up%>)
+    <button id="up" type="button" class="btn btn-default btn-lg" value=<%=upState%> onclick="isLogin('<%=login_info%>','up','<%=week%>','<%=userName%>','<%=up+1%>')">
+        <span class="fas fa-thumbs-up"  id="ups" aria-hidden="true" >(<%=up%>)</span>
     </button>
 
     <%
         }else {
 
     %>
-    <button type="button" class="btn btn-default btn-lg" onclick="isLogin('up')">
-        <span class="far fa-thumbs-up" aria-hidden="true" ></span>(<%=up%>)
+    <button id="up" type="button"class="btn btn-default btn-lg" value=<%=upState%> onclick="isLogin('<%=login_info%>','up','<%=week%>','<%=userName%>','<%=up+1%>')">
+        <span class="far fa-thumbs-up"  id="ups" aria-hidden="true" >(<%=up%>)</span>
     </button>
     <%
         }
@@ -76,15 +71,15 @@
     <%
         if (downState) {
     %>
-    <button type="button" class="btn btn-default btn-lg" onclick="isLogin('down')">
-        <span class="fas fa-thumbs-down" aria-hidden="true"></span>(<%=down%>)
+    <button id="down" type="button" class="btn btn-default btn-lg" value=<%=downState%> onclick="isLogin('<%=login_info%>','down','<%=week%>','<%=userName%>','<%=down+1%>')">
+        <span class="fas fa-thumbs-down" id="downs" aria-hidden="true">(<%=down%>)</span>
     </button>
     <%
     }else {
 
     %>
-    <button type="button" class="btn btn-default btn-lg" onclick="isLogin('down')">
-        <span class="far fa-thumbs-down" aria-hidden="true"></span>(<%=down%>)
+    <button id="down" type="button" class="btn btn-default btn-lg" value=<%=downState%> onclick="isLogin('<%=login_info%>','down','<%=week%>','<%=userName%>','<%=down+1%>')">
+        <span class="far fa-thumbs-down" id="downs" aria-hidden="true">(<%=down%>)</span>
     </button>
     <%
         }
@@ -110,7 +105,7 @@
 
 
 
-    <%if (login_info.equals("登录")) {
+    <%if (user==null) {
     %>
     <button type="button" class="btn btn-default btn-lg" onclick=window.location.href="<%=url%>" style="float: right;">
         <span class="fas fa-sign-in-alt" aria-hidden="true"></span>登录
@@ -131,12 +126,11 @@
     <div>
         <div style="float: left"><img src="/static/TuringCalendar/TuringCalendar-<%=week%>.jpg" width="65%" ></div>
     </div>
-    <link rel="stylesheet" type="text/css" href="../static/css/social.css"/>
-    <script type="text/javascript" src="../static/js/social.js"></script>
+
 
     <div class="list" id="list" style="float: right; margin-top: 10%; margin-right: 10%">
+        <button id="week" value=<%=week%>></button>
         <div class="box clearfix">
-            <%--<img src="images/s1.jpg" alt="" class="head" /><!-- 头像 -->--%>
             <div class="content">
                 <div class="main">
                     <p class="text">
@@ -171,15 +165,8 @@
             </div><!-- 正文内容 -->
         </div><!-- 第一个box结束 -->
 
-
-
-
     </div><!-- 社交评论列表 -->
 
-
-
-
-<button id="week" value=<%=week%>></button>
 </div>
 </body>
 </html>

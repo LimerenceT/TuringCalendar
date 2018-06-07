@@ -14,7 +14,7 @@ public class JdbcUtils {
         dataSource = new ComboPooledDataSource("TuringCalendar");
     }
 
-    public  static Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return dataSource.getConnection();
 
     }

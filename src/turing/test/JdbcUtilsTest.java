@@ -6,13 +6,17 @@ import turing.db.JdbcUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class JdbcUtilsTest {
-
-    @org.junit.jupiter.api.Test
+    private static Connection connection;
+    @Test
     void getConnection() throws SQLException {
-        Connection connection = JdbcUtils.getConnection();
-        System.out.println(connection);
+        connection = JdbcUtils.getConnection();
+        assert connection != null;
+    }
+
+    @Test
+    void releaseConnection() throws SQLException {
+        JdbcUtils.releaseConnection(connection);
     }
 }

@@ -18,7 +18,7 @@
 <script type='text/javascript'>
     var i=5;
     function getTime(){
-        document.getElementById('num').innerHTML="<font color='red'>"+i+"</font>";
+        document.getElementById('num');
         i-=1;
         var x=setTimeout('getTime()',1000)
         if(i<=0){
@@ -28,6 +28,6 @@
     window.onload=getTime;
 </script>
 <body>
-<p style="text-align: center">注册成功，正在跳转</p>
+<p style="text-align: center">注册成功，正在跳转..</p>
 </body>
 </html>

@@ -45,11 +45,6 @@
                                 <input id="name" type="text" class="form-control" name="name" required autofocus>
                             </div>
 
-                            <%--<div class="form-group">--%>
-                                <%--<label for="email">E-Mail Address</label>--%>
-                                <%--<input id="email" type="email" class="form-control" name="email" required>--%>
-                            <%--</div>--%>
-
                             <div class="form-group">
 
                                 <label for="password">Password</label>
@@ -57,12 +52,6 @@
                                 <input id="md5_password" type="hidden" name="md5_password">
 
                             </div>
-
-                            <%--<div class="form-group">--%>
-                                <%--<label>--%>
-                                    <%--<input type="checkbox" name="aggree" value="1"> I agree to the Terms and Conditions--%>
-                                <%--</label>--%>
-                            <%--</div>--%>
 
                             <div class="form-group no-margin">
                                 <button type="submit" class="btn btn-primary btn-block" onclick="encrypt()">

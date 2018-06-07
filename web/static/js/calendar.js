@@ -2,7 +2,7 @@ document.write("<script src='/static/js/jquery.min.js'><\/script>");
 window.onload=function(){
 	var list=document.getElementById('list');
 	var lis=list.children;
-	
+
 	function currentTime(){
 		var date = new Date();
 		var y = date.getFullYear();
@@ -22,27 +22,10 @@ window.onload=function(){
 		lis[i].onclick=function(event){
 			event=event||window.event;
 			var el=event.srcElement;
-			
-			switch(el.className){
-
-				case 'close'://关闭分享
-					removeList(el.parentNode);
-					break;
-				case 'praise'://分享点赞
-					praiseList(el);
-					break;
-				case 'comment-praise'://留言点赞
-					praiseComment(el);
-					break;
-				case 'comment-operate'://处理留言
-					operateComment(el);
-					break;
-				case 'btn'://回复评论
-					reply(el);
-					break;
-
+			if(el.className === 'btn') {
+                reply(el);
 			}
-			
+
 		}
 		//评论按键事件
         textArea.onkeyup = function () {
@@ -75,64 +58,7 @@ window.onload=function(){
             }
         }
 	}
-	//关闭分享功能
-	function removeList(node){
-		node.parentNode.removeChild(node);
-	}
-	//分享点赞功能
-	function praiseList(node){
-		var box=node.parentNode.parentNode.parentNode;
-		var praisesTotal = box.getElementsByClassName('praises-total')[0];
-		var oldPraiseTotal=parseInt(praisesTotal.getAttribute('total'));
-		var newPraiseTotal;
-		var txt=node.innerHTML;
-		if(txt=='赞'){
-			newPraiseTotal=oldPraiseTotal+1;
-			praisesTotal.setAttribute('total',newPraiseTotal);
-			praisesTotal.innerHTML = (newPraiseTotal == 1) ? '我觉得很赞' : '我和' + oldPraiseTotal + '个人觉得很赞';
-			node.innerHTML='取消赞';
-		}else if(txt=='取消赞'){
-			newPraiseTotal=oldPraiseTotal-1;
-			praisesTotal.setAttribute('total',newPraiseTotal);
-			praisesTotal.innerHTML = (newPraiseTotal == 0) ? '' : newPraiseTotal + '个人觉得很赞';
-			node.innerHTML='赞';
-		}
-		praisesTotal.style.display = (newPraiseTotal == 0) ? 'none' : 'block';
-	}
-	//留言点赞功能
-	function praiseComment(node){
-		var myPraiseTotal=parseInt(node.getAttribute('my'));
-		var oldPraiseTotal=parseInt(node.getAttribute('total'));
-		var newPraiseTotal;
-		if(myPraiseTotal==0){
-			newPraiseTotal=oldPraiseTotal+1;
-			node.setAttribute('total',newPraiseTotal);
-			node.setAttribute('my','1');
-			node.innerHTML = newPraiseTotal + ' 取消赞';
-		}else if(myPraiseTotal==1){
-			newPraiseTotal=oldPraiseTotal-1;
-			node.setAttribute('total',newPraiseTotal);
-			node.setAttribute('my','0');
-			node.innerHTML = newPraiseTotal + '赞';
-		}
-		node.style.display = (newPraiseTotal == 0) ? '' : 'inline-block';
-	}
-	//处理留言功能
-	function operateComment(node){
-		var commentBox=node.parentNode.parentNode.parentNode;
-		var box=commentBox.parentNode.parentNode.parentNode;
-		var txt=node.innerHTML;
-		var user = commentBox.getElementsByClassName('user')[0].innerHTML;
-		var textarea = box.getElementsByClassName('comment')[0];
-		if(txt=='删除'){
-			removeList(commentBox);
-		}else if(txt == '回复'){
-			textarea.focus();
-			//textarea.parentNode.className='text-box text-box-on';
-			textarea.value = '回复' + user;
-			textarea.onkeyup();
-		}
-	}
+
 	//回复评论功能
 	function reply(node){
 		var name = document.getElementById("button-1");
@@ -167,4 +93,33 @@ window.onload=function(){
             alert("请先登录");
 		}
 	}
+}
+
+
+function isLogin(login_info, upOrDown,  week, username,num) {
+    var upState = (document.getElementById('up').value === 'true');
+    var downState = (document.getElementById('down').value === 'true');
+
+    if (login_info==="登录"){
+        alert("请先登录")
+    }
+    else if (upState){
+        alert("你已经点过赞，暂时不能改变")
+    }
+    else if (downState){
+        alert("你已经踩过了，暂时不能改变")
+    }
+    else {
+        $.post(upOrDown+".do", { week: week, name: username});
+        if (upOrDown==='up'){
+            document.getElementById('ups').className= 'fas fa-thumbs-up';
+            document.getElementById('ups').innerText="("+num+")";
+            document.getElementById('up').value='true';
+        } else {
+            document.getElementById('downs').className= 'fas fa-thumbs-down';
+            document.getElementById('downs').innerText="("+num+")";
+            document.getElementById('down').value='true';
+        }
+
+    }
 }
